@@ -1,5 +1,7 @@
 package com.kz.web.config.secure.context;
 
+import com.kz.web.config.secure.context.base.KAuthentication;
+import com.kz.web.config.secure.context.base.KAuthority;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -21,59 +23,7 @@ import java.util.Map;
 @Component
 @Slf4j
 public class TokenAuthUtil implements AuthenticationConverter {
-    public static final String PUB_KEY_FILE = "rsa/pub.der";
-    public static final String PRI_KEY_FILE = "rsa/pri.der";
 
-    public static PublicKey publicKey = null;
-    public static PrivateKey privateKey = null;
-
-    static {
-        try {
-            log.info("generate key pair\n");
-            generateKeyPair();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            log.info("could not create new key, read exist key\n");
-            readExistKey();
-        }
-    }
-
-
-    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException, IOException {
-        KeyPairGenerator instance = KeyPairGenerator.getInstance("RSA");
-        instance.initialize(2048);
-        KeyPair keyPair = instance.generateKeyPair();
-        Path path = Paths.get(PUB_KEY_FILE);
-        Files.createDirectories(path.getParent());
-        Files.write(path, keyPair.getPublic().getEncoded(), StandardOpenOption.CREATE_NEW);
-        path = Paths.get(PRI_KEY_FILE);
-        Files.createDirectories(path.getParent());
-        Files.write(path, keyPair.getPrivate().getEncoded(), StandardOpenOption.CREATE_NEW);
-        publicKey = keyPair.getPublic();
-        privateKey = keyPair.getPrivate();
-        return keyPair;
-    }
-
-    public static void readExistKey() {
-        try {
-            // pub
-            X509EncodedKeySpec spec = new X509EncodedKeySpec(Files.readAllBytes(Path.of(PUB_KEY_FILE)));
-            PublicKey rsa = KeyFactory.getInstance("RSA").generatePublic(spec);
-            publicKey = rsa;
-
-            // pri
-            PKCS8EncodedKeySpec spec2 = new PKCS8EncodedKeySpec(Files.readAllBytes(Path.of(PRI_KEY_FILE)));
-            PrivateKey rsa2 = KeyFactory.getInstance("RSA").generatePrivate(spec2);
-            privateKey = rsa2;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeySpecException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public String authToToken(Authentication auth) {
         Object principal = auth.getPrincipal();
@@ -88,7 +38,7 @@ public class TokenAuthUtil implements AuthenticationConverter {
                     .add("username", principal)
                     .add("auth", auth.isAuthenticated())
                     .and()
-                    .signWith(privateKey)
+                    .signWith(RSAUtil.privateKey)
                     .compact();
             return jws;
         } else {
@@ -106,7 +56,7 @@ public class TokenAuthUtil implements AuthenticationConverter {
                     .add("username", userName)
                     .add("auth", auth.isAuthenticated())
                     .and()
-                    .signWith(privateKey)
+                    .signWith(RSAUtil.privateKey)
                     .compact();
             return jws;
         }
@@ -119,7 +69,7 @@ public class TokenAuthUtil implements AuthenticationConverter {
                 return null;
             }
             Jwt<?, ?> jwt = Jwts.parser()
-                    .verifyWith(publicKey)
+                    .verifyWith(RSAUtil.publicKey)
                     .build().parse(token);
 
             Header header = jwt.getHeader();

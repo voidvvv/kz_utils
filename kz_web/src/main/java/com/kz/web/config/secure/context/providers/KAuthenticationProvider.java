@@ -1,5 +1,6 @@
-package com.kz.web.config.secure.context;
+package com.kz.web.config.secure.context.providers;
 
+import com.kz.web.config.secure.context.base.KAuthentication;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;

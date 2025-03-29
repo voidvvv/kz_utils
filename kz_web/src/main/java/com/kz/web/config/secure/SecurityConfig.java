@@ -1,15 +1,19 @@
 package com.kz.web.config.secure;
 
 import com.kz.web.config.secure.context.*;
+import com.kz.web.config.secure.context.filters.KAuthFilter;
+import com.kz.web.config.secure.context.providers.KAuthenticationProvider;
+import com.kz.web.config.secure.context.providers.KUserAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,7 +21,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
@@ -29,11 +32,12 @@ public class SecurityConfig {
     private KAuthenticationProvider kAuthenticationProvider;
 
     @Autowired
-    private AuthenticationConfiguration AuthenticationConfiguration;
+    private KUserAuthenticationProvider kUserAuthenticationProvider;
 
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
-        return AuthenticationConfiguration.getAuthenticationManager();
+        ProviderManager providerManager = new ProviderManager(kAuthenticationProvider, kUserAuthenticationProvider);
+        return providerManager;
     }
 
     // 配置安全过滤器链（Spring Security 5.7+ 推荐方式）
@@ -53,7 +57,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form.disable()  // 登录失败跳转
                 )
-                .addFilterAfter(new KAuthFilter(authUtil, kAuthenticationProvider), LogoutFilter.class) // 自定义认证过滤器
+                .addFilterAfter(new KAuthFilter(authUtil, authenticationManager()), LogoutFilter.class) // 自定义认证过滤器
 //                .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
                 .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
                 .logout(logout -> logout
