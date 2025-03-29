@@ -20,13 +20,21 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
-@Configuration
+//@Configuration
 public class SecurityConfig {
     @Autowired
     TokenAuthUtil authUtil;
 
+//    @Autowired
+//    private AuthenticationConfiguration AuthenticationConfiguration;
+//
+//    @Bean
+//    public AuthenticationManager authenticationManager() throws Exception {
+//        return AuthenticationConfiguration.getAuthenticationManager();
+//    }
+
     // 配置安全过滤器链（Spring Security 5.7+ 推荐方式）
-    @Bean
+//    @Bean
     @Order(0)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
