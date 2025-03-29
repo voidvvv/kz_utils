@@ -25,13 +25,16 @@ public class SecurityConfig {
     @Autowired
     TokenAuthUtil authUtil;
 
-//    @Autowired
-//    private AuthenticationConfiguration AuthenticationConfiguration;
-//
-//    @Bean
-//    public AuthenticationManager authenticationManager() throws Exception {
-//        return AuthenticationConfiguration.getAuthenticationManager();
-//    }
+    @Autowired
+    private KAuthenticationProvider kAuthenticationProvider;
+
+    @Autowired
+    private AuthenticationConfiguration AuthenticationConfiguration;
+
+    @Bean
+    public AuthenticationManager authenticationManager() throws Exception {
+        return AuthenticationConfiguration.getAuthenticationManager();
+    }
 
     // 配置安全过滤器链（Spring Security 5.7+ 推荐方式）
 //    @Bean
@@ -50,7 +53,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form.disable()  // 登录失败跳转
                 )
-                .addFilterAfter(new KAuthFilter(authUtil), LogoutFilter.class) // 自定义认证过滤器
+                .addFilterAfter(new KAuthFilter(authUtil, kAuthenticationProvider), LogoutFilter.class) // 自定义认证过滤器
 //                .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
                 .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
                 .logout(logout -> logout
