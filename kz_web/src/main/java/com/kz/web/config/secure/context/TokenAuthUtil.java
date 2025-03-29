@@ -129,7 +129,7 @@ public class TokenAuthUtil implements AuthenticationConverter {
 
             KAuthentication auth = new KAuthentication();
             auth.setUserName((String) header.get("username"));
-            auth.setAuthState(!(Boolean) header.get("auth"));
+            auth.setAuthState((Boolean) header.get("auth"));
             auth.setExpireDate(expiration);
             payload.get("authList", List.class)
                     .forEach(
