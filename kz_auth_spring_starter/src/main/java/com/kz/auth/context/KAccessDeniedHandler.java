@@ -1,4 +1,4 @@
-package com.kz.web.config.secure.context;
+package com.kz.auth.context;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

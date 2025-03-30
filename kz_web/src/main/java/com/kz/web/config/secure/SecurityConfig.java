@@ -1,7 +1,9 @@
 package com.kz.web.config.secure;
 
-import com.kz.web.config.secure.context.*;
-import com.kz.web.config.secure.context.filters.KAuthFilter;
+import com.kz.auth.context.KAccessDeniedHandler;
+import com.kz.auth.context.KAuthenticationEntryPoint;
+import com.kz.auth.context.TokenAuthUtil;
+import com.kz.auth.context.filters.KAuthFilter;
 import com.kz.web.config.secure.context.providers.KAuthenticationProvider;
 import com.kz.web.config.secure.context.providers.KUserAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +59,15 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form.disable()  // 登录失败跳转
                 )
+//                .oneTimeTokenLogin(oneTimeToken -> oneTimeToken
+//                        .authenticationConverter(authUtil)
+//                        .tokenGeneratingUrl("/login/token") // 生成Token URL
+//                        .loginProcessingUrl("/login") // 登录URL
+//                        .tokenGenerationSuccessHandler()
+//                        .successHandler(new KAuthenticationSuccessHandler(authUtil)) // 登录成功处理器
+//                        .failureHandler(new KAuthenticationFailureHandler()) // 登录失败处理器
+//                        .permitAll()
+//                )
                 .addFilterAfter(new KAuthFilter(authUtil, authenticationManager()), LogoutFilter.class) // 自定义认证过滤器
 //                .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
                 .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
@@ -69,7 +80,6 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(new KAccessDeniedHandler())
                                 .authenticationEntryPoint(new KAuthenticationEntryPoint())
-                        // 权限不足时跳转
                 );
         return http.build();
     }

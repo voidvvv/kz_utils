@@ -1,6 +1,6 @@
 package com.kz.web.controller;
 
-import com.kz.web.config.secure.context.TokenAuthUtil;
+import com.kz.auth.context.TokenAuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

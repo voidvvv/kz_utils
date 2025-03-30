@@ -1,29 +1,25 @@
-package com.kz.web.config.secure.context;
+package com.kz.auth.context;
 
-import com.kz.web.config.secure.context.base.KAuthentication;
-import com.kz.web.config.secure.context.base.KAuthority;
-import io.jsonwebtoken.*;
+import com.kz.auth.context.base.KAuthentication;
+import com.kz.auth.context.base.KAuthority;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.nio.file.*;
-import java.security.*;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Component
-@Slf4j
 public class TokenAuthUtil implements AuthenticationConverter {
-
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(TokenAuthUtil.class);
 
     public String authToToken(Authentication auth) {
         Object principal = auth.getPrincipal();

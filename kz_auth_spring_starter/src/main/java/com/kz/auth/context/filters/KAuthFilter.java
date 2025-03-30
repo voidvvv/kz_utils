@@ -1,13 +1,11 @@
-package com.kz.web.config.secure.context.filters;
+package com.kz.auth.context.filters;
 
-import com.kz.web.config.secure.context.base.KAuthentication;
-import com.kz.web.config.secure.context.providers.KAuthenticationProvider;
-import com.kz.web.config.secure.context.TokenAuthUtil;
+import com.kz.auth.context.TokenAuthUtil;
+import com.kz.auth.context.base.KAuthentication;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

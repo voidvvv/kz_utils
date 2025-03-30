@@ -1,4 +1,4 @@
-package com.kz.web.config.secure.context.base;
+package com.kz.auth.context.base;
 
 import org.springframework.security.core.GrantedAuthority;
 
