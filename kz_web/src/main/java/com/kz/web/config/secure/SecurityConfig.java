@@ -11,11 +11,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -42,6 +46,10 @@ public class SecurityConfig {
         return providerManager;
     }
 
+    public void webSecurity (WebSecurity webSecurity) {
+//        webSecurity.
+    }
+
     // 配置安全过滤器链（Spring Security 5.7+ 推荐方式）
 //    @Bean
     @Order(0)
@@ -49,13 +57,22 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/","/index","/forum").permitAll() // 首页放行
                         .requestMatchers("/login").permitAll() // 登录页放行
                         .requestMatchers("/public/**", "/error").permitAll() // 明确放行登录页和公共路径
                         .requestMatchers("/admin/**").hasAuthority("admin")    // 需要 ADMIN 角色
+                        .requestMatchers("/static/**",
+                                "**.html",
+                                "/css/**",
+                                "/js/**",
+                                "/fonts/**",
+                                "/lib/**",
+                                "/plugins/**").permitAll()
                         .anyRequest().authenticated()                     // 其他所有路径需要认证
                 )
                 .anonymous(anon -> anon
                         .principal("anonymousUser") // 匿名用户
+                        .authorities("ROLE_ANONYMOUS") // 匿名用户角色
                 )
                 .formLogin(form -> form.disable()  // 登录失败跳转
                 )
