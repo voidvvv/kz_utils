@@ -58,6 +58,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/","/index","/forum").permitAll() // 首页放行
+                        .requestMatchers("md").permitAll()
                         .requestMatchers("/login").permitAll() // 登录页放行
                         .requestMatchers("/public/**", "/error").permitAll() // 明确放行登录页和公共路径
                         .requestMatchers("/admin/**").hasAuthority("admin")    // 需要 ADMIN 角色
