@@ -2,18 +2,30 @@ package com.kz.web.blog;
 
 import com.kz.web.dto.KzBlogDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.SecureRandom;
 
 @Component("localFileRepository")
 @Slf4j
 public class LocalFileRepository implements FileRepository{
+    @Value("${kz.file.local.path:}")
+    private String filePath;
+
     @Override
     public BlogFile saveBlogFile(KzBlogDTO kzBlobDTO) {
         String content = kzBlobDTO.getContent();
         String fileFormat = kzBlobDTO.getFileFormat();
-        String fileName = compositeFileName(kzBlobDTO.getTitle(), fileFormat);
+        String fileName = compositeFileName(kzBlobDTO, fileFormat);
         String pathPrefix = fetchPathPrefix(kzBlobDTO);
 
         String filePath = pathPrefix + fileName;
@@ -30,15 +42,30 @@ public class LocalFileRepository implements FileRepository{
 
     private void saveFile(String fileUrl, String content) {
         log.info("save file to {}", fileUrl);
+        try {
+            Files.write(Path.of(fileUrl), content.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            log.error("save file error, fileUrl: {}", fileUrl, e);
+            throw new RuntimeException(e);
+        }
     }
 
     private String fetchPathPrefix(KzBlogDTO kzBlobDTO) {
-        return null;
+        return filePath.endsWith("\\") ? filePath : filePath + "\\";
     }
 
-    private String compositeFileName(String title, String fileFormat) {
-        byte[] bytes = title.getBytes(StandardCharsets.UTF_8);
-        return null;
+    private String compositeFileName(KzBlogDTO blog, String fileFormat) {
+        Authentication authentication = SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication();
+        String currentUser = null;
+        if (authentication != null && authentication.getPrincipal() instanceof String) {
+            currentUser = (String) authentication.getPrincipal();
+        } else if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            currentUser = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+        }
+//        byte[] titleBytes = blog.getTitle().getBytes(StandardCharsets.UTF_8);
+//        String hexStr = new String(Hex.encode(titleBytes));
+        String fileName = new SecureRandom().nextInt() + "_" + currentUser + "_" + System.currentTimeMillis() + "." + fileFormat;
+        return fileName;
     }
 
     @Override

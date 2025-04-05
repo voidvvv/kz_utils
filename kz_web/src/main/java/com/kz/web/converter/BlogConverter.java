@@ -15,11 +15,16 @@ public class BlogConverter {
         String currentUser = fetchCurrenmtUserId();
         KzBlog entity = new KzBlog();
         entity.setTitle(dto.getTitle());
-        entity.setSimpleDescription(dto.getDescription());
+        if ( dto.getDescription() != null && !dto.getDescription().isEmpty()) {
+            entity.setSimpleDescription(dto.getDescription());
+        } else {
+            entity.setSimpleDescription(dto.getTitle());
+        }
         entity.setFileFormat(dto.getFileFormat());
 //        entity.setFileUrl(dto.getFileUrl());
         entity.setFileMethod("LOCAL");
         entity.setAuthorUserId(currentUser);
+        entity.setCreateBy(currentUser);
         entity.setCreateTime(System.currentTimeMillis());
         entity.setUpdateBy(currentUser);
         entity.setUpdateTime(System.currentTimeMillis());
@@ -27,7 +32,13 @@ public class BlogConverter {
     }
 
     private String fetchCurrenmtUserId() {
-        return (String) SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication().getPrincipal();
+        Object principal = SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication().getPrincipal();
+        if (principal instanceof String) {
+            return (String) principal;
+        } else if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            return ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+        }
+        return String.valueOf(principal) ;
 
     }
 
