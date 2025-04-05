@@ -7,6 +7,9 @@ import com.kz.auth.context.filters.KAuthFilter;
 import com.kz.web.config.secure.context.providers.KAuthenticationProvider;
 import com.kz.web.config.secure.context.providers.KUserAuthenticationProvider;
 import com.kz.web.config.secure.context.users.UserService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +24,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -30,7 +34,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+
+import java.io.IOException;
 
 @Configuration
 public class SecurityConfig {
@@ -75,8 +82,18 @@ public class SecurityConfig {
                         .principal("anonymousUser") // 匿名用户
                         .authorities("ROLE_ANONYMOUS") // 匿名用户角色
                 )
-                .formLogin(AbstractHttpConfigurer::disable
+                .formLogin(
+                        form -> form.loginProcessingUrl("/login")
+                                .failureHandler(new AuthenticationFailureHandler() {
+                                    @Override
+                                    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+                                        // 处理登录失败
+                                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                        response.getWriter().write("Login failed: " + exception.getMessage());
+                                    }
+                                })
                 )
+                .csrf(AbstractHttpConfigurer::disable) // 禁用 CSRF 保护
 //                .oneTimeTokenLogin(oneTimeToken -> oneTimeToken
 //                        .authenticationConverter(authUtil)
 //                        .tokenGeneratingUrl("/login/token") // 生成Token URL

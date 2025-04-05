@@ -31,12 +31,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(name = "/login")
+    @RequestMapping("/login")
     public String login(HttpServletRequest request) {
-        UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.unauthenticated("user","123456");
-        Authentication result = authenticationManager.authenticate(auth);
-        SecurityContextHolder.getContext().setAuthentication(result);
-        return tokenAuthUtil.authToToken(result);
+        return "";
     }
     @RequestMapping("/user/all")
     public List<KzUser> getUserList() {
