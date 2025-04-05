@@ -1,15 +1,33 @@
 package com.kz.web.config.secure;
 
-import com.kz.web.config.secure.context.*;
+import com.kz.auth.context.KAccessDeniedHandler;
+import com.kz.auth.context.KAuthenticationEntryPoint;
+import com.kz.auth.context.TokenAuthUtil;
+import com.kz.auth.context.filters.KAuthFilter;
+import com.kz.web.config.secure.context.AuthSuccessHandler;
+import com.kz.web.config.secure.context.providers.KAuthenticationProvider;
+import com.kz.web.config.secure.context.providers.KUserAuthenticationProvider;
+import com.kz.web.config.secure.context.users.UserService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManagerResolver;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,21 +35,32 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+
+import java.io.IOException;
 
 @Configuration
 public class SecurityConfig {
     @Autowired
     TokenAuthUtil authUtil;
 
-//    @Autowired
-//    private AuthenticationConfiguration AuthenticationConfiguration;
+    @Autowired
+    private AuthSuccessHandler authSuccessHandler;
+
+    @Autowired
+    private KAuthenticationProvider kAuthenticationProvider;
 //
-//    @Bean
-//    public AuthenticationManager authenticationManager() throws Exception {
-//        return AuthenticationConfiguration.getAuthenticationManager();
-//    }
+//    @Autowired
+//    private KUserAuthenticationProvider kUserAuthenticationProvider;
+
+    @Bean
+    public AuthenticationManager authenticationManager() throws Exception {
+        ProviderManager providerManager = new ProviderManager(kAuthenticationProvider, daoAuthenticationProvider());
+        return providerManager;
+    }
+
 
     // 配置安全过滤器链（Spring Security 5.7+ 推荐方式）
 //    @Bean
@@ -40,17 +69,58 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login").permitAll() // 登录页放行
+                        .requestMatchers("/", "/index", "/forum").permitAll() // 首页放行
+                        .requestMatchers("/blog/get", "/blog/list").permitAll()
+
+                        .requestMatchers("/login", "/register").permitAll() // 登录页放行
                         .requestMatchers("/public/**", "/error").permitAll() // 明确放行登录页和公共路径
                         .requestMatchers("/admin/**").hasAuthority("admin")    // 需要 ADMIN 角色
+                        .requestMatchers("/static/**",
+                                "**.html",
+                                "/css/**",
+                                "/js/**",
+                                "/fonts/**",
+                                "/lib/**",
+                                "/plugins/**").permitAll()
                         .anyRequest().authenticated()                     // 其他所有路径需要认证
+                )
+                .cors(
+                        cors -> cors
+                                .configurationSource(request -> {
+                                    var config = new org.springframework.web.cors.CorsConfiguration();
+                                    config.addAllowedOrigin("*");
+                                    config.addAllowedMethod("*");
+                                    config.addAllowedHeader("*");
+                                    return config;
+                                })
                 )
                 .anonymous(anon -> anon
                         .principal("anonymousUser") // 匿名用户
+                        .authorities("ROLE_ANONYMOUS") // 匿名用户角色
                 )
-                .formLogin(form -> form.disable()  // 登录失败跳转
+                .formLogin(
+                        form -> form.loginProcessingUrl("/login")
+                                .successHandler(authSuccessHandler)
+                                .failureHandler(new AuthenticationFailureHandler() {
+                                    @Override
+                                    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+                                        // 处理登录失败
+                                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                        response.getWriter().write("Login failed: " + exception.getMessage());
+                                    }
+                                })
                 )
-                .addFilterAfter(new KAuthFilter(authUtil), LogoutFilter.class) // 自定义认证过滤器
+                .csrf(AbstractHttpConfigurer::disable) // 禁用 CSRF 保护
+//                .oneTimeTokenLogin(oneTimeToken -> oneTimeToken
+//                        .authenticationConverter(authUtil)
+//                        .tokenGeneratingUrl("/login/token") // 生成Token URL
+//                        .loginProcessingUrl("/login") // 登录URL
+//                        .tokenGenerationSuccessHandler()
+//                        .successHandler(new KAuthenticationSuccessHandler(authUtil)) // 登录成功处理器
+//                        .failureHandler(new KAuthenticationFailureHandler()) // 登录失败处理器
+//                        .permitAll()
+//                )
+                .addFilterAfter(new KAuthFilter(authUtil, authenticationManager()), LogoutFilter.class) // 自定义认证过滤器
 //                .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
                 .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
                 .logout(logout -> logout
@@ -60,9 +130,8 @@ public class SecurityConfig {
                 )
 //                .authenticationManager(authenticationManager())
                 .exceptionHandling(exception -> exception
-                        .accessDeniedHandler(new KAccessDeniedHandler())
+//                        .accessDeniedHandler(new KAccessDeniedHandler())
                                 .authenticationEntryPoint(new KAuthenticationEntryPoint())
-                        // 权限不足时跳转
                 );
         return http.build();
     }
@@ -70,24 +139,20 @@ public class SecurityConfig {
     // 配置内存用户（仅示例，生产环境需用数据库）
     @Bean
     public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-                .username("user")
-                .password(passwordEncoder().encode("123456"))
-                .roles("USER")
-                .build();
-
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(passwordEncoder().encode("admin"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(user, admin);
+        return new UserService();
     }
 
     // 密码编码器（必须配置）
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 }

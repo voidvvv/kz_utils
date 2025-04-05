@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Forum Main Page</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+<header>
+    <h1>Forum</h1>
+    <nav>
+        <ul>
+            <li><a href="/" th:href="@{/}">Home</a></li>
+            <li><a href="/forum" th:href="@{/forum}">Forum</a></li>
+            <li><a href="/login" th:href="@{/login}">Login</a></li>
+            <li><a href="/register" th:href="@{/register}">Register</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <h2>Topics</h2>
+    <ul>
+        <li th:each="topic : ${topics}">
+            <a th:href="@{/forum/{id}(id=${topic.id})}" th:text="${topic.title}">Topic Title</a>
+            <p th:text="${topic.description}">Topic Description</p>
+        </li>
+    </ul>
+</main>
+
+<footer>
+    <p>&copy; 2023 Forum. All rights reserved.</p>
+</footer>
+</body>
+</html>
