@@ -58,4 +58,18 @@ public class BlogConverter {
         });
         return list;
     }
+
+    public KzBlogDTO convertEntityToDto(KzBlog kzBlog) {
+        KzBlogDTO dto = new KzBlogDTO();
+        dto.setId(kzBlog.getId());
+        dto.setTitle(kzBlog.getTitle());
+        dto.setDescription(kzBlog.getSimpleDescription());
+        dto.setFileFormat(kzBlog.getFileFormat());
+//        dto.setFileUrl(kzBlog.getFileUrl());
+        dto.setAuthor(kzBlog.getAuthorUserId());
+//        dto.setTags(kzBlog.getTags());
+//        dto.setCategories(kzBlog.getCategories());
+
+        return dto;
+    }
 }

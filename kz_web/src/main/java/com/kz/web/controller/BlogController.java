@@ -32,4 +32,11 @@ public class BlogController {
         KzBlog addedBlog = blogService.addBlog(kzBlog);
         return ResponseDTO.ok(addedBlog);
     }
+
+    @GetMapping("/get")
+    public ResponseDTO<KzBlogDTO> getBlogById(@RequestParam("id") int id) {
+        log.info("get blog by id, id: {}", id);
+        KzBlogDTO blog = blogService.findBlogById(id);
+        return ResponseDTO.ok(blog);
+    }
 }

@@ -85,4 +85,15 @@ public class LocalFileRepository implements FileRepository{
     public void modifyBlogFile(String path) {
 
     }
+
+    @Override
+    public byte[] readFile(String path) {
+        log.info("read file from {}", path);
+        try {
+            return Files.readAllBytes(Path.of(path));
+        } catch (IOException e) {
+            log.error("read file error, path: {}", path, e);
+            throw new RuntimeException(e);
+        }
+    }
 }

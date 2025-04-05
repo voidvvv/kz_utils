@@ -34,9 +34,15 @@ public class BlogService {
         return blogConverter.convertListEntityToDto(kzBlogs);
     }
 
-    public KzBlog findBlogById(int id) {
+    public KzBlogDTO findBlogById(int id) {
         KzBlog kzBlog = kzBlogMapper.selectById(id);
-        return kzBlog;
+        if (kzBlog == null) {
+            throw new RuntimeException("Blog not found");
+        }
+        KzBlogDTO dto = blogConverter.convertEntityToDto(kzBlog);
+        byte[] bytes = fileRepository.readFile(kzBlog.getFileUrl());
+        dto.setContent(new String(bytes));
+        return dto;
     }
 
     public KzBlog findBlogByTitle (String title) {
@@ -66,4 +72,6 @@ public class BlogService {
 
         return blogConverter.convertListEntityToDto(kzBlogs);
     }
+
+
 }

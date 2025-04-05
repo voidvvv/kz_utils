@@ -11,4 +11,6 @@ public interface FileRepository {
     public BlogFile saveBlogFile(KzBlogDTO kzBlobDTO);
 
     public void modifyBlogFile(String path);
+
+    public byte[] readFile(String path);
 }
