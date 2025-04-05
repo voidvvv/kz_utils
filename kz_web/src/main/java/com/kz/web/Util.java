@@ -48,7 +48,7 @@ public class Util {
 
     }
 
-    private static String byteArrToHexStr(byte[] digest) {
+    public static String byteArrToHexStr(byte[] digest) {
         StringBuilder sb = new StringBuilder();
         for (byte b : digest) {
             sb.append(String.format("%02x", b));

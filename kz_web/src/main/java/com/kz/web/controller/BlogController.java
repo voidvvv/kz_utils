@@ -2,6 +2,7 @@ package com.kz.web.controller;
 
 import com.kz.web.blog.PageInfo;
 import com.kz.web.dto.KzBlogDTO;
+import com.kz.web.dto.KzBlogletDTO;
 import com.kz.web.dto.ResponseDTO;
 import com.kz.web.entity.KzBlog;
 import com.kz.web.service.BlogService;
@@ -19,9 +20,9 @@ public class BlogController {
     private BlogService blogService;
 
     @GetMapping("/list")
-    public ResponseDTO<List<KzBlogDTO>> getBlogList(PageInfo pageInfo) {
+    public ResponseDTO<List<KzBlogletDTO>> getBlogList(PageInfo pageInfo) {
         log.info("get blog list, page: {}, pageSize: {}", pageInfo.getPage(), pageInfo.getPageSize());
-        List<KzBlogDTO> allBlog = blogService.findAllBlog(pageInfo.getPage(), pageInfo.getPageSize());
+        List<KzBlogletDTO> allBlog = blogService.findAllBloglet(pageInfo.getPage(), pageInfo.getPageSize());
         return ResponseDTO.ok(allBlog);
     }
 

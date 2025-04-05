@@ -1,5 +1,6 @@
 package com.kz.web.blog;
 
+import com.kz.web.Util;
 import com.kz.web.dto.KzBlogDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 @Component("localFileRepository")
@@ -55,17 +58,27 @@ public class LocalFileRepository implements FileRepository{
     }
 
     private String compositeFileName(KzBlogDTO blog, String fileFormat) {
-        Authentication authentication = SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication();
-        String currentUser = null;
-        if (authentication != null && authentication.getPrincipal() instanceof String) {
-            currentUser = (String) authentication.getPrincipal();
-        } else if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
-            currentUser = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
-        }
+        try {
+            Authentication authentication = SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication();
+            String currentUser = null;
+            if (authentication != null && authentication.getPrincipal() instanceof String) {
+                currentUser = (String) authentication.getPrincipal();
+            } else if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+                currentUser = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            }
+            MessageDigest SHA_1 = MessageDigest.getInstance("SHA-1");
+            byte[] contentBytes = blog.getContent().getBytes();
+            SHA_1.update(contentBytes);
+            byte[] digest = SHA_1.digest();
+            String hexFile = Util.byteArrToHexStr(digest);
 //        byte[] titleBytes = blog.getTitle().getBytes(StandardCharsets.UTF_8);
 //        String hexStr = new String(Hex.encode(titleBytes));
-        String fileName = new SecureRandom().nextInt() + "_" + currentUser + "_" + System.currentTimeMillis() + "." + fileFormat;
-        return fileName;
+            String fileName = hexFile + "_" + currentUser + "_" + System.currentTimeMillis() + "." + fileFormat;
+            return fileName;
+        } catch (NoSuchAlgorithmException e) {
+            log.error("composite file name error, blog: {}", blog, e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

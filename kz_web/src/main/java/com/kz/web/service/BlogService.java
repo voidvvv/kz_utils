@@ -6,6 +6,7 @@ import com.kz.web.blog.BlogFile;
 import com.kz.web.blog.FileRepository;
 import com.kz.web.converter.BlogConverter;
 import com.kz.web.dto.KzBlogDTO;
+import com.kz.web.dto.KzBlogletDTO;
 import com.kz.web.entity.KzBlog;
 import com.kz.web.mapper.KzBlogMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class BlogService {
     @Autowired
     private FileRepository fileRepository;
 
-    public List<KzBlogDTO> findAllBlog(int start, int pageSize) {
+    public List<KzBlogletDTO> findAllBlog(int start, int pageSize) {
         List<KzBlog> kzBlogs = kzBlogMapper
                 .selectList(
                         new Page<>(start, pageSize), null
@@ -55,5 +56,14 @@ public class BlogService {
 
         kzBlogMapper.insert(entity);
         return entity;
+    }
+
+    public List<KzBlogletDTO> findAllBloglet(int page, int pageSize) {
+        List<KzBlog> kzBlogs = kzBlogMapper
+                .selectList(
+                        new Page<>(page, pageSize), null
+                );
+
+        return blogConverter.convertListEntityToDto(kzBlogs);
     }
 }

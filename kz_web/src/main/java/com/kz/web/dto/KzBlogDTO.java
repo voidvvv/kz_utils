@@ -7,12 +7,6 @@ import java.util.List;
 
 @Getter
 @Setter
-public class KzBlogDTO {
-    private Integer id;
-    private String title;
+public class KzBlogDTO extends KzBlogletDTO{
     private String content;
-    private String description;
-    private String fileFormat = "md";
-    private List<String> tags;
-    private List<String> categories;
 }

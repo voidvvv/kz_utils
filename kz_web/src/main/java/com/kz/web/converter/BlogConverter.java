@@ -1,6 +1,7 @@
 package com.kz.web.converter;
 
 import com.kz.web.dto.KzBlogDTO;
+import com.kz.web.dto.KzBlogletDTO;
 import com.kz.web.entity.KzBlog;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -42,14 +43,15 @@ public class BlogConverter {
 
     }
 
-    public List<KzBlogDTO> convertListEntityToDto(List<KzBlog> kzBlogs) {
-        List<KzBlogDTO> list = new ArrayList<>();
+    public List<KzBlogletDTO> convertListEntityToDto(List<KzBlog> kzBlogs) {
+        List<KzBlogletDTO> list = new ArrayList<>();
         kzBlogs.forEach(e -> {
-            KzBlogDTO dto = new KzBlogDTO();
+            KzBlogletDTO dto = new KzBlogletDTO();
             dto.setId(e.getId());
             dto.setTitle(e.getTitle());
             dto.setDescription(e.getSimpleDescription());
             dto.setFileFormat(e.getFileFormat());
+            dto.setAuthor(e.getAuthorUserId());
 //            dto.setTags(e.getTags());
 //            dto.setCategories(e.getCategories());
             list.add(dto);
