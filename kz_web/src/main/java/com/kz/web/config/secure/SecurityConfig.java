@@ -35,6 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 import java.io.IOException;
@@ -66,7 +67,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/index", "/forum").permitAll() // 首页放行
                         .requestMatchers("md").permitAll()
-                        .requestMatchers("/login").permitAll() // 登录页放行
+                        .requestMatchers("/login","/register").permitAll() // 登录页放行
                         .requestMatchers("/public/**", "/error").permitAll() // 明确放行登录页和公共路径
                         .requestMatchers("/admin/**").hasAuthority("admin")    // 需要 ADMIN 角色
                         .requestMatchers("/static/**",
@@ -84,6 +85,16 @@ public class SecurityConfig {
                 )
                 .formLogin(
                         form -> form.loginProcessingUrl("/login")
+                                .successHandler(new AuthenticationSuccessHandler() {
+                                    @Override
+                                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                                        // 处理登录成功
+                                        SecurityContext context = SecurityContextHolder.getContext();
+                                        context.setAuthentication(authentication);
+                                        response.setStatus(HttpServletResponse.SC_OK);
+                                        response.getWriter().write("Login successful: " + authentication.getName());
+                                    }
+                                })
                                 .failureHandler(new AuthenticationFailureHandler() {
                                     @Override
                                     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {

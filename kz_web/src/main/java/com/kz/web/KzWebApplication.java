@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 
@@ -16,6 +17,7 @@ import java.util.Arrays;
 public class KzWebApplication {
 	@Autowired
 	private KzUserMapper kzUserMapper;
+
 
 	public static void main(String[] args) throws ClassNotFoundException {
 //		Class.forName("com.kz.web.config.secure.context.TokenAuthUtil");

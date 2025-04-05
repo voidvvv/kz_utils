@@ -7,6 +7,7 @@ import com.kz.auth.context.base.KAuthority;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -20,6 +21,7 @@ import java.util.List;
 public class KzUser implements UserDetails {
 
     @TableId(value = "id", type = IdType.AUTO)
+
     private Integer id;
 
     private String username;
@@ -28,7 +30,7 @@ public class KzUser implements UserDetails {
 
     private List<KAuthority> authorities;
 
-    private Integer lock;
+    private Integer lockSign;
 
     private Integer version;
 
@@ -47,7 +49,7 @@ public class KzUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.lock != 0;
+        return this.lockSign == 0;
     }
 
     @Override

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface KzUserMapper extends BaseMapper<KzUser> {
 
-    @Select("SELECT * FROM kz_user")
+    @Select("SELECT * FROM kz_user where username = #{username}")
     KzUser findByUsername(String username);
 
 
