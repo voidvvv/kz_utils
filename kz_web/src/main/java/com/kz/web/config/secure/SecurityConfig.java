@@ -6,6 +6,7 @@ import com.kz.auth.context.TokenAuthUtil;
 import com.kz.auth.context.filters.KAuthFilter;
 import com.kz.web.config.secure.context.providers.KAuthenticationProvider;
 import com.kz.web.config.secure.context.providers.KUserAuthenticationProvider;
+import com.kz.web.config.secure.context.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,9 +15,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,19 +39,16 @@ public class SecurityConfig {
 
     @Autowired
     private KAuthenticationProvider kAuthenticationProvider;
-
-    @Autowired
-    private KUserAuthenticationProvider kUserAuthenticationProvider;
+//
+//    @Autowired
+//    private KUserAuthenticationProvider kUserAuthenticationProvider;
 
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
-        ProviderManager providerManager = new ProviderManager(kAuthenticationProvider, kUserAuthenticationProvider);
+        ProviderManager providerManager = new ProviderManager(kAuthenticationProvider, daoAuthenticationProvider());
         return providerManager;
     }
 
-    public void webSecurity (WebSecurity webSecurity) {
-//        webSecurity.
-    }
 
     // 配置安全过滤器链（Spring Security 5.7+ 推荐方式）
 //    @Bean
@@ -57,7 +57,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/","/index","/forum").permitAll() // 首页放行
+                        .requestMatchers("/", "/index", "/forum").permitAll() // 首页放行
                         .requestMatchers("md").permitAll()
                         .requestMatchers("/login").permitAll() // 登录页放行
                         .requestMatchers("/public/**", "/error").permitAll() // 明确放行登录页和公共路径
@@ -75,7 +75,7 @@ public class SecurityConfig {
                         .principal("anonymousUser") // 匿名用户
                         .authorities("ROLE_ANONYMOUS") // 匿名用户角色
                 )
-                .formLogin(form -> form.disable()  // 登录失败跳转
+                .formLogin(AbstractHttpConfigurer::disable
                 )
 //                .oneTimeTokenLogin(oneTimeToken -> oneTimeToken
 //                        .authenticationConverter(authUtil)
@@ -96,8 +96,8 @@ public class SecurityConfig {
                 )
 //                .authenticationManager(authenticationManager())
                 .exceptionHandling(exception -> exception
-                        .accessDeniedHandler(new KAccessDeniedHandler())
-                                .authenticationEntryPoint(new KAuthenticationEntryPoint())
+//                        .accessDeniedHandler(new KAccessDeniedHandler())
+                        .authenticationEntryPoint(new KAuthenticationEntryPoint())
                 );
         return http.build();
     }
@@ -105,24 +105,20 @@ public class SecurityConfig {
     // 配置内存用户（仅示例，生产环境需用数据库）
     @Bean
     public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-                .username("user")
-                .password(passwordEncoder().encode("123456"))
-                .roles("USER")
-                .build();
-
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(passwordEncoder().encode("admin"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(user, admin);
+        return new UserService();
     }
 
     // 密码编码器（必须配置）
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 }

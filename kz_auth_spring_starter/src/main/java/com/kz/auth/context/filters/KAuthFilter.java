@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,11 +26,15 @@ public class KAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        KAuthentication convert = tokenAuthUtil.convert(request);
-        if (convert != null) {
-            Authentication auth = authenticationManager.authenticate(convert);
-            SecurityContextHolder.getContextHolderStrategy().getContext().setAuthentication(auth);
+        SecurityContext context = SecurityContextHolder.getContextHolderStrategy().getContext();
+        if (context.getAuthentication() == null || !context.getAuthentication().isAuthenticated()) {
+            KAuthentication convert = tokenAuthUtil.convert(request);
+            if (convert != null) {
+                Authentication auth = authenticationManager.authenticate(convert);
+                context.setAuthentication(auth);
+            }
         }
+
         filterChain.doFilter(request, response);
     }
 }
