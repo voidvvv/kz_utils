@@ -1,6 +1,7 @@
 package com.kz.web.config.secure.context.exceptions;
 
 public class AlreadyExistingUser extends RuntimeException{
+    public static final int CODE = 400;
     public AlreadyExistingUser() {
         super();
     }

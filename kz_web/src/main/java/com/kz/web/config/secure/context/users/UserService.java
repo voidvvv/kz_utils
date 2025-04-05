@@ -2,11 +2,10 @@ package com.kz.web.config.secure.context.users;
 
 import com.kz.web.config.secure.context.exceptions.AlreadyExistingUser;
 import com.kz.web.dto.RegisterUserDTO;
-import com.kz.web.entity.KzUser;
+import com.kz.web.entity.KzAccount;
 import com.kz.web.mapper.KzUserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,7 +23,7 @@ public class UserService implements UserDetailsService {
     private KzUserMapper kzUserMapper;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        KzUser foundUser = kzUserMapper.findByUsername(username);
+        KzAccount foundUser = kzUserMapper.findByUsername(username);
         if (foundUser == null || illegalUser(foundUser)) {
             throw new UsernameNotFoundException("User not found for username: " + username);
         }
@@ -33,18 +32,18 @@ public class UserService implements UserDetailsService {
         return foundUser;
     }
 
-    public void findAllAuthorities(KzUser foundUser) {
+    public void findAllAuthorities(KzAccount foundUser) {
 
     }
 
-    private boolean illegalUser(KzUser foundUser) {
+    private boolean illegalUser(KzAccount foundUser) {
         return false;
     }
 
     public void register(RegisterUserDTO request) {
         String username = request.getUsername();
         // besure username is unique
-        KzUser foundUser = kzUserMapper.findByUsername(username);
+        KzAccount foundUser = kzUserMapper.findByUsername(username);
         if (foundUser != null) {
             log.error("user {} already exists", username);
             throw new AlreadyExistingUser("user " + username + " already exists");
@@ -55,7 +54,7 @@ public class UserService implements UserDetailsService {
 
     private void saveNewUser(RegisterUserDTO request) {
         Date date = new Date();
-        KzUser user = new KzUser();
+        KzAccount user = new KzAccount();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setLockSign(0);

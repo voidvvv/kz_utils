@@ -4,14 +4,10 @@ import com.kz.auth.context.TokenAuthUtil;
 import com.kz.web.config.secure.context.users.UserService;
 import com.kz.web.dto.RegisterUserDTO;
 import com.kz.web.dto.ResponseDTO;
-import com.kz.web.entity.KzUser;
-import com.kz.web.mapper.KzUserMapper;
+import com.kz.web.entity.KzAccount;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +42,7 @@ public class UserController {
     }
 
     @RequestMapping("/user/all")
-    public ResponseDTO<List<KzUser>> getUserList() {
+    public ResponseDTO<List<KzAccount>> getUserList() {
         return null;
     }
 

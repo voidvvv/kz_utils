@@ -12,6 +12,6 @@ public class AdviceController {
 
     @ExceptionHandler(AlreadyExistingUser.class)
     public ResponseDTO handleUserExistsException(AlreadyExistingUser e, HttpServletResponse response) {
-        return ResponseDTO.fail("User already exists", e.getMessage(), 400);
+        return ResponseDTO.fail("User already exists", e.getMessage(), AlreadyExistingUser.CODE);
     }
 }

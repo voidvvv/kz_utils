@@ -94,11 +94,6 @@
 			<version>1.5.18</version>
 		</dependency>
 
-<!--		thymleaf-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
 
 <!--		mybatis-->
 		<dependency>

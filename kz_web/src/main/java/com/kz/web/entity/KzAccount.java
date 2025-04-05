@@ -7,18 +7,15 @@ import com.kz.auth.context.base.KAuthority;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
 import java.util.List;
 
 @Data
-@TableName("kz_user")
+@TableName("kz_account")
 @Getter
 @Setter
-public class KzUser implements UserDetails {
+public class KzAccount implements UserDetails {
 
     @TableId(value = "id", type = IdType.AUTO)
 
