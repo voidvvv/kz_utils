@@ -18,6 +18,8 @@ public class KzBlog {
 
     private String simpleDescription;
 
+    private String excerpt;
+
     private String fileFormat;
 
     private String fileUrl;

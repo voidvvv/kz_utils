@@ -11,6 +11,7 @@ public class KzBlogletDTO {
     private Integer id;
     private String title;
     private String description;
+    private String excerpt;
     private String fileFormat = "md";
     private String author;
     private List<String> tags;

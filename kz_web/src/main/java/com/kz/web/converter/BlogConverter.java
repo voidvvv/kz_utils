@@ -29,6 +29,7 @@ public class BlogConverter {
         entity.setCreateTime(System.currentTimeMillis());
         entity.setUpdateBy(currentUser);
         entity.setUpdateTime(System.currentTimeMillis());
+        entity.setExcerpt(dto.getExcerpt());
         return entity;
     }
 
@@ -52,6 +53,7 @@ public class BlogConverter {
             dto.setDescription(e.getSimpleDescription());
             dto.setFileFormat(e.getFileFormat());
             dto.setAuthor(e.getAuthorUserId());
+            dto.setExcerpt(e.getExcerpt());
 //            dto.setTags(e.getTags());
 //            dto.setCategories(e.getCategories());
             list.add(dto);
@@ -67,6 +69,7 @@ public class BlogConverter {
         dto.setFileFormat(kzBlog.getFileFormat());
 //        dto.setFileUrl(kzBlog.getFileUrl());
         dto.setAuthor(kzBlog.getAuthorUserId());
+        dto.setExcerpt(kzBlog.getExcerpt());
 //        dto.setTags(kzBlog.getTags());
 //        dto.setCategories(kzBlog.getCategories());
 
