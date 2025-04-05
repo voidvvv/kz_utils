@@ -53,7 +53,8 @@ public class BlogService {
     }
 
     public KzBlog addBlog(KzBlogDTO kzBlog) {
-        KzBlog entity = blogConverter.convertDtoToEntity(kzBlog);
+        KzBlog entity = new KzBlog();
+        blogConverter.convertDtoToEntity(kzBlog, entity);
         // save blog file
         BlogFile blogFile = fileRepository.saveBlogFile(kzBlog);
         entity.setFileFormat(blogFile.getFileFormat());
@@ -67,7 +68,7 @@ public class BlogService {
     public List<KzBlogletDTO> findAllBloglet(int page, int pageSize) {
         List<KzBlog> kzBlogs = kzBlogMapper
                 .selectList(
-                        new Page<>(page, pageSize), null
+                        new Page<>(page, pageSize), new QueryWrapper<>()
                 );
 
         return blogConverter.convertListEntityToDto(kzBlogs);

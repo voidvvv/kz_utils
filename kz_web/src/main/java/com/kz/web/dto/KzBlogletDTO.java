@@ -16,4 +16,7 @@ public class KzBlogletDTO {
     private String author;
     private List<String> tags;
     private List<String> categories;
+    private Long createDate;
+    private Long updateDate;
+
 }

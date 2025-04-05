@@ -4,6 +4,7 @@ import com.kz.auth.context.KAccessDeniedHandler;
 import com.kz.auth.context.KAuthenticationEntryPoint;
 import com.kz.auth.context.TokenAuthUtil;
 import com.kz.auth.context.filters.KAuthFilter;
+import com.kz.web.config.secure.context.AuthSuccessHandler;
 import com.kz.web.config.secure.context.providers.KAuthenticationProvider;
 import com.kz.web.config.secure.context.providers.KUserAuthenticationProvider;
 import com.kz.web.config.secure.context.users.UserService;
@@ -46,6 +47,9 @@ public class SecurityConfig {
     TokenAuthUtil authUtil;
 
     @Autowired
+    private AuthSuccessHandler authSuccessHandler;
+
+    @Autowired
     private KAuthenticationProvider kAuthenticationProvider;
 //
 //    @Autowired
@@ -66,8 +70,9 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/index", "/forum").permitAll() // 首页放行
-                        .requestMatchers("md").permitAll()
-                        .requestMatchers("/login","/register").permitAll() // 登录页放行
+                        .requestMatchers("/blog/get", "/blog/list").permitAll()
+
+                        .requestMatchers("/login", "/register").permitAll() // 登录页放行
                         .requestMatchers("/public/**", "/error").permitAll() // 明确放行登录页和公共路径
                         .requestMatchers("/admin/**").hasAuthority("admin")    // 需要 ADMIN 角色
                         .requestMatchers("/static/**",
@@ -79,22 +84,23 @@ public class SecurityConfig {
                                 "/plugins/**").permitAll()
                         .anyRequest().authenticated()                     // 其他所有路径需要认证
                 )
+                .cors(
+                        cors -> cors
+                                .configurationSource(request -> {
+                                    var config = new org.springframework.web.cors.CorsConfiguration();
+                                    config.addAllowedOrigin("*");
+                                    config.addAllowedMethod("*");
+                                    config.addAllowedHeader("*");
+                                    return config;
+                                })
+                )
                 .anonymous(anon -> anon
                         .principal("anonymousUser") // 匿名用户
                         .authorities("ROLE_ANONYMOUS") // 匿名用户角色
                 )
                 .formLogin(
                         form -> form.loginProcessingUrl("/login")
-                                .successHandler(new AuthenticationSuccessHandler() {
-                                    @Override
-                                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                                        // 处理登录成功
-                                        SecurityContext context = SecurityContextHolder.getContext();
-                                        context.setAuthentication(authentication);
-                                        response.setStatus(HttpServletResponse.SC_OK);
-                                        response.getWriter().write("Login successful: " + authentication.getName());
-                                    }
-                                })
+                                .successHandler(authSuccessHandler)
                                 .failureHandler(new AuthenticationFailureHandler() {
                                     @Override
                                     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
@@ -125,7 +131,7 @@ public class SecurityConfig {
 //                .authenticationManager(authenticationManager())
                 .exceptionHandling(exception -> exception
 //                        .accessDeniedHandler(new KAccessDeniedHandler())
-                        .authenticationEntryPoint(new KAuthenticationEntryPoint())
+                                .authenticationEntryPoint(new KAuthenticationEntryPoint())
                 );
         return http.build();
     }

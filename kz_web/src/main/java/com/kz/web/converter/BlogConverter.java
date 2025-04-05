@@ -12,9 +12,8 @@ import java.util.List;
 @Component
 public class BlogConverter {
 
-    public KzBlog convertDtoToEntity (KzBlogDTO dto) {
+    public KzBlog convertDtoToEntity (KzBlogDTO dto, KzBlog entity) {
         String currentUser = fetchCurrenmtUserId();
-        KzBlog entity = new KzBlog();
         entity.setTitle(dto.getTitle());
         if ( dto.getDescription() != null && !dto.getDescription().isEmpty()) {
             entity.setSimpleDescription(dto.getDescription());
@@ -54,6 +53,8 @@ public class BlogConverter {
             dto.setFileFormat(e.getFileFormat());
             dto.setAuthor(e.getAuthorUserId());
             dto.setExcerpt(e.getExcerpt());
+            dto.setCreateDate(e.getCreateTime());
+            dto.setUpdateDate(e.getUpdateTime());
 //            dto.setTags(e.getTags());
 //            dto.setCategories(e.getCategories());
             list.add(dto);
@@ -72,7 +73,8 @@ public class BlogConverter {
         dto.setExcerpt(kzBlog.getExcerpt());
 //        dto.setTags(kzBlog.getTags());
 //        dto.setCategories(kzBlog.getCategories());
-
+        dto.setCreateDate(kzBlog.getCreateTime());
+        dto.setUpdateDate(kzBlog.getUpdateTime());
         return dto;
     }
 }
