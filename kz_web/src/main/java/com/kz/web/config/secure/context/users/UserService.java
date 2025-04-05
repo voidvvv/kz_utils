@@ -1,5 +1,6 @@
 package com.kz.web.config.secure.context.users;
 
+import com.kz.web.config.secure.context.exceptions.AlreadyExistingUser;
 import com.kz.web.dto.RegisterUserDTO;
 import com.kz.web.entity.KzUser;
 import com.kz.web.mapper.KzUserMapper;
@@ -41,6 +42,18 @@ public class UserService implements UserDetailsService {
     }
 
     public void register(RegisterUserDTO request) {
+        String username = request.getUsername();
+        // besure username is unique
+        KzUser foundUser = kzUserMapper.findByUsername(username);
+        if (foundUser != null) {
+            log.error("user {} already exists", username);
+            throw new AlreadyExistingUser("user " + username + " already exists");
+        }
+        saveNewUser(request);
+        log.info("user {} register success", username);
+    }
+
+    private void saveNewUser(RegisterUserDTO request) {
         Date date = new Date();
         KzUser user = new KzUser();
         user.setUsername(request.getUsername());
@@ -52,6 +65,5 @@ public class UserService implements UserDetailsService {
         user.setCreateBy("system");
         user.setUpdateBy("system");
         kzUserMapper.insert(user);
-        log.info("user {} register success", request.getUsername());
     }
 }
