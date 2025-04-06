@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class KzUserInfo {
+public class KzUserInfoDTO {
     private String username; // account name
 
     private String nickname; // nickname

@@ -82,6 +82,7 @@ public class SecurityConfig {
                                 "/fonts/**",
                                 "/lib/**",
                                 "/plugins/**").permitAll()
+                        .requestMatchers("/user/**").hasAuthority("user") // 需要 USER 角色
                         .anyRequest().authenticated()                     // 其他所有路径需要认证
                 )
                 .cors(

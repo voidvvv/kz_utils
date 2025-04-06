@@ -2,7 +2,7 @@ package com.kz.web.controller;
 
 import com.kz.auth.context.TokenAuthUtil;
 import com.kz.web.config.secure.context.users.UserService;
-import com.kz.web.dto.KzUserInfo;
+import com.kz.web.dto.KzUserInfoDTO;
 import com.kz.web.dto.RegisterUserDTO;
 import com.kz.web.dto.ResponseDTO;
 import com.kz.web.entity.KzAccount;
@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @RequestMapping("/user/current")
-    public ResponseDTO<KzUserInfo> currentUserInfo() {
+    public ResponseDTO<KzUserInfoDTO> currentUserInfo() {
         return ResponseDTO.ok(userService.currentUserInfo());
     }
 

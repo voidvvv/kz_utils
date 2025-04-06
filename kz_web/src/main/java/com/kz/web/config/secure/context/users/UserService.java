@@ -1,10 +1,13 @@
 package com.kz.web.config.secure.context.users;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kz.web.config.secure.context.exceptions.AlreadyExistingUser;
-import com.kz.web.dto.KzUserInfo;
+import com.kz.web.dto.KzUserInfoDTO;
 import com.kz.web.dto.RegisterUserDTO;
 import com.kz.web.entity.KzAccount;
+import com.kz.web.entity.KzUser;
 import com.kz.web.mapper.KzAccountMapper;
+import com.kz.web.mapper.KzUserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -26,6 +30,8 @@ public class UserService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private KzAccountMapper kzAccountMapper;
+    @Autowired
+    private KzUserMapper kzUserMapper;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         KzAccount foundUser = kzAccountMapper.findByUsername(username);
@@ -71,19 +77,17 @@ public class UserService implements UserDetailsService {
         kzAccountMapper.insert(user);
     }
 
-    public KzUserInfo currentUserInfo() {
-        KzUserInfo info = new KzUserInfo();
+    public KzUserInfoDTO currentUserInfo() {
+        KzUserInfoDTO info = new KzUserInfoDTO();
         SecurityContext context = SecurityContextHolder.getContextHolderStrategy().getContext();
         Assert.notNull(context, "current user not login");
         Authentication authentication = context.getAuthentication();
         Assert.notNull(authentication, "current user not login");
         Object principal = authentication.getPrincipal();
         String userName = null;
-        if (principal instanceof KzAccount) {
-            KzAccount user = (KzAccount) principal;
+        if (principal instanceof KzAccount user) {
             userName = user.getUsername();
-        } else if (principal instanceof UserDetails) {
-            UserDetails user = (UserDetails) principal;
+        } else if (principal instanceof UserDetails user) {
             userName = user.getUsername();
         } else if (principal instanceof String) {
             userName = (String) principal;
@@ -91,6 +95,19 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("current user is illegal");
         }
         info.setUsername(userName);
+        QueryWrapper<KzUser> queryWrapper = new QueryWrapper<KzUser>()
+                .eq("kz_account_id", userName);
+        List<KzUser> kzUsers = kzUserMapper.selectList(queryWrapper);
+        Assert.notEmpty(kzUsers, "current user is illegal");
+        KzUser kzUser = determineUser(kzUsers);
+        info.setNickname(kzUser.getNickname());
+        info.setEmail(kzUser.getEmail());
+        info.setPhone(kzUser.getPhone());
+        info.setAvatar(kzUser.getAvatar());
         return info;
+    }
+
+    private KzUser determineUser(List<KzUser> kzUsers) {
+        return kzUsers.get(0);
     }
 }
