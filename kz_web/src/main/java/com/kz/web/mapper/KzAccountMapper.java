@@ -5,7 +5,7 @@ import com.kz.web.entity.KzAccount;
 import org.apache.ibatis.annotations.Select;
 
 
-public interface KzUserMapper extends BaseMapper<KzAccount> {
+public interface KzAccountMapper extends BaseMapper<KzAccount> {
 
     @Select("SELECT * FROM kz_account where username = #{username}")
     KzAccount findByUsername(String username);

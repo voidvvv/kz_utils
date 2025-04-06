@@ -2,6 +2,7 @@ package com.kz.web.controller;
 
 import com.kz.auth.context.TokenAuthUtil;
 import com.kz.web.config.secure.context.users.UserService;
+import com.kz.web.dto.KzUserInfo;
 import com.kz.web.dto.RegisterUserDTO;
 import com.kz.web.dto.ResponseDTO;
 import com.kz.web.entity.KzAccount;
@@ -35,7 +36,7 @@ public class UserController {
         return "";
     }
 
-    @PostMapping("/register")
+    @PostMapping("/admin/register")
     public ResponseDTO register(@RequestBody RegisterUserDTO request) {
         userService.register(request);
         return ResponseDTO.ok();
@@ -44,6 +45,11 @@ public class UserController {
     @RequestMapping("/user/all")
     public ResponseDTO<List<KzAccount>> getUserList() {
         return null;
+    }
+
+    @RequestMapping("/user/current")
+    public ResponseDTO<KzUserInfo> currentUserInfo() {
+        return ResponseDTO.ok(userService.currentUserInfo());
     }
 
 }

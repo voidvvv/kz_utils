@@ -18,7 +18,6 @@ import java.util.List;
 public class KzAccount implements UserDetails {
 
     @TableId(value = "id", type = IdType.AUTO)
-
     private Integer id;
 
     private String username;

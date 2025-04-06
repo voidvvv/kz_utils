@@ -1,22 +1,18 @@
 package com.kz.web;
 
-import com.kz.web.mapper.KzUserMapper;
+import com.kz.web.mapper.KzAccountMapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Arrays;
 
 @SpringBootApplication()
 @EnableWebSecurity
 @MapperScan("com.kz.web.mapper")
 public class KzWebApplication {
 	@Autowired
-	private KzUserMapper kzUserMapper;
+	private KzAccountMapper kzAccountMapper;
 
 
 	public static void main(String[] args) throws ClassNotFoundException {
