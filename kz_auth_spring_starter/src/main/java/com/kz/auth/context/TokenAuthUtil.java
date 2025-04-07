@@ -2,10 +2,7 @@ package com.kz.auth.context;
 
 import com.kz.auth.context.base.KAuthentication;
 import com.kz.auth.context.base.KAuthority;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwt;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -84,8 +81,12 @@ public class TokenAuthUtil implements AuthenticationConverter {
                             }
                     );
             return auth;
-        } catch (Exception e) {
-            log.error("tokenToAuth error: {}", e);
+        } catch (ExpiredJwtException e) {
+            log.error("token expired : {}" , token);
+            throw e;
+        }
+        catch (Exception e) {
+            log.error("tokenToAuth error", e);
             return null;
         }
     }
