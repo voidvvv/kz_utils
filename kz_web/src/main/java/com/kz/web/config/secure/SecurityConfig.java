@@ -8,6 +8,7 @@ import com.kz.web.config.secure.context.AuthSuccessHandler;
 import com.kz.web.config.secure.context.providers.KAuthenticationProvider;
 import com.kz.web.config.secure.context.providers.KUserAuthenticationProvider;
 import com.kz.web.config.secure.context.users.UserService;
+import com.kz.web.config.secure.filter.GlobalExceptionHandler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,7 +38,10 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.session.DisableEncodeUrlFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 import java.io.IOException;
 
@@ -87,7 +91,7 @@ public class SecurityConfig {
                 .cors(
                         cors -> cors
                                 .configurationSource(request -> {
-                                    var config = new org.springframework.web.cors.CorsConfiguration();
+                                    var config = new CorsConfiguration();
                                     config.addAllowedOrigin("*");
                                     config.addAllowedMethod("*");
                                     config.addAllowedHeader("*");
@@ -120,8 +124,11 @@ public class SecurityConfig {
 //                        .failureHandler(new KAuthenticationFailureHandler()) // 登录失败处理器
 //                        .permitAll()
 //                )
+                .addFilterAfter(new GlobalExceptionHandler(), LogoutFilter.class)
+
                 .addFilterAfter(new KAuthFilter(authUtil, authenticationManager()), LogoutFilter.class) // 自定义认证过滤器
 //                .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
+
                 .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
                 .logout(logout -> logout
                         .logoutUrl("/logout")          // 登出URL
