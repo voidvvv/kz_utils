@@ -16,8 +16,6 @@ public class KzWebApplication {
 
 
 	public static void main(String[] args) throws ClassNotFoundException {
-//		Class.forName("com.kz.web.config.secure.context.TokenAuthUtil");
-
 		SpringApplication.run(KzWebApplication.class, args);
 	}
 

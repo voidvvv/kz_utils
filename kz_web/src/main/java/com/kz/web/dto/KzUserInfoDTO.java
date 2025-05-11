@@ -6,6 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class KzUserInfoDTO {
+    private boolean incomplete;
+    private int id;
+
     private String username; // account name
 
     private String nickname; // nickname

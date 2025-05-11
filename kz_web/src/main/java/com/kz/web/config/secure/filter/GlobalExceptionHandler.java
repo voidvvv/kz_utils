@@ -19,9 +19,8 @@ public class GlobalExceptionHandler extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (JwtException e) {
             log.error("JWT Exception: ", e);
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("{\"code\":\"" + HttpServletResponse.SC_FORBIDDEN + "\"  ,\"message\": \"Token is invalid\"}");
-
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"code\":\"" + HttpServletResponse.SC_UNAUTHORIZED + "\"  ,\"message\": \"Token is invalid\"}");
         }catch (Exception e) {
             // Handle the exception here
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

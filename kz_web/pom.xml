@@ -113,6 +113,12 @@
 			<artifactId>mybatis-spring</artifactId>
 			<version>3.0.3</version>
 		</dependency>
+
+<!--		docker composite-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-docker-compose</artifactId>-->
+<!--		</dependency>-->
 	</dependencies>
 
 	<build>

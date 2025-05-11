@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -98,8 +99,12 @@ public class UserService implements UserDetailsService {
         QueryWrapper<KzUser> queryWrapper = new QueryWrapper<KzUser>()
                 .eq("kz_account_id", userName);
         List<KzUser> kzUsers = kzUserMapper.selectList(queryWrapper);
-        Assert.notEmpty(kzUsers, "current user is illegal");
+        if (CollectionUtils.isEmpty(kzUsers)) {
+            info.setIncomplete(true);
+            return info;
+        }
         KzUser kzUser = determineUser(kzUsers);
+        info.setId(kzUser.getId());
         info.setNickname(kzUser.getNickname());
         info.setEmail(kzUser.getEmail());
         info.setPhone(kzUser.getPhone());
