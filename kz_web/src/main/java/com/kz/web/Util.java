@@ -22,7 +22,6 @@ public class Util {
         MessageDigest MD5 = MessageDigest.getInstance("MD5");
         MessageDigest SHA_1 = MessageDigest.getInstance("SHA-1");
 
-
         File file = new File(fileName);
         if (file.isDirectory()) {
             File[] files = file.listFiles();
