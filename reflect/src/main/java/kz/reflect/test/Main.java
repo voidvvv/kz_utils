@@ -3,11 +3,11 @@ package kz.reflect.test;
 import anno.KzTransaction;
 import impl.MyEater;
 import interfaces.Eatable;
-import sun.misc.ProxyGenerator;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.nio.file.Files;
@@ -33,8 +33,8 @@ public class Main {
                 Eatable.class.getClassLoader(),
                 new Class[]{Eatable.class},
                 (proxy, method, args1) -> {
-                    origin.getClass().getDeclaredMethod(method.getName(), null);
-                    KzTransaction trans = method.getAnnotation(KzTransaction.class);
+                    Method curqrentMethod = origin.getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());
+                    KzTransaction trans = curqrentMethod.getAnnotation(KzTransaction.class);
                     if (trans != null) {
                         System.out.println("Transaction started");
                     }
