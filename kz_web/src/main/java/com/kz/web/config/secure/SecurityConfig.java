@@ -40,6 +40,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.session.DisableEncodeUrlFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -132,7 +133,11 @@ public class SecurityConfig {
                 .authenticationProvider(new KAuthenticationProvider()) // 自定义认证提供者
                 .logout(logout -> logout
                         .logoutUrl("/logout")          // 登出URL
-                        .logoutSuccessUrl("/login?logout") // 登出成功后跳转
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            // 处理登出成功
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.getWriter().write("Logout successful");
+                        })
                         .permitAll()
                 )
 //                .authenticationManager(authenticationManager())
