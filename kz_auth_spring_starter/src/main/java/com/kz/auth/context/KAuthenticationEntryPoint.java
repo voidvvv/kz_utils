@@ -8,10 +8,13 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
 
+
 public class KAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"name\":\"KAuthenticationEntryPoint\"}");
+        String msgJson = "{\"name\":\""+authException.getMessage()+"\" , \"url\" : \"" + request.getRequestURL()+ "\"}";
+        System.out.println("Authentication failed: " + msgJson);
+        response.getWriter().write(msgJson);
     }
 }

@@ -1,5 +1,6 @@
 package com.kz.web.config.secure;
 
+
 import com.kz.auth.context.KAccessDeniedHandler;
 import com.kz.auth.context.KAuthenticationEntryPoint;
 import com.kz.auth.context.TokenAuthUtil;
@@ -13,6 +14,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -25,6 +27,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -74,20 +77,22 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/index", "/forum").permitAll() // 首页放行
-                        .requestMatchers("/blog/get", "/blog/list").permitAll()
-
-                        .requestMatchers("/login", "/register").permitAll() // 登录页放行
-                        .requestMatchers("/public/**", "/error").permitAll() // 明确放行登录页和公共路径
-                        .requestMatchers("/admin/**").hasAuthority("admin")    // 需要 ADMIN 角色
-                        .requestMatchers("/static/**",
-                                "**.html",
-                                "/css/**",
-                                "/js/**",
-                                "/fonts/**",
-                                "/lib/**",
-                                "/plugins/**").permitAll()
-                        .anyRequest().authenticated()                     // 其他所有路径需要认证
+                                .requestMatchers("/", "/index", "/forum").permitAll() // 首页放行
+                                .requestMatchers("/blog/get", "/blog/list").permitAll()
+//                        .requestMatchers("/h2-console/**").permitAll()
+                                .requestMatchers(PathRequest.toH2Console()).permitAll()
+                                .requestMatchers("/login", "/register").permitAll() // 登录页放行
+                                .requestMatchers("/public/**", "/error").permitAll() // 明确放行登录页和公共路径
+                                .requestMatchers("/admin/**").hasAuthority("admin")    // 需要 ADMIN 角色
+                                .requestMatchers("/static/**",
+                                        "**.html",
+//                                "*.jsp",
+                                        "/css/**",
+                                        "/js/**",
+                                        "/fonts/**",
+                                        "/lib/**",
+                                        "/plugins/**").permitAll()
+                                .anyRequest().authenticated()                     // 其他所有路径需要认证
                 )
                 .cors(
                         cors -> cors
@@ -116,6 +121,8 @@ public class SecurityConfig {
                                 })
                 )
                 .csrf(AbstractHttpConfigurer::disable) // 禁用 CSRF 保护
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+
 //                .oneTimeTokenLogin(oneTimeToken -> oneTimeToken
 //                        .authenticationConverter(authUtil)
 //                        .tokenGeneratingUrl("/login/token") // 生成Token URL
@@ -142,8 +149,10 @@ public class SecurityConfig {
                 )
 //                .authenticationManager(authenticationManager())
                 .exceptionHandling(exception -> exception
-//                        .accessDeniedHandler(new KAccessDeniedHandler())
-                                .authenticationEntryPoint(new KAuthenticationEntryPoint())
+                        // 已登录权限不足handler
+                        .accessDeniedHandler(new KAccessDeniedHandler())
+                        // 未登录handler
+                        .authenticationEntryPoint(new KAuthenticationEntryPoint())
                 );
         return http.build();
     }
