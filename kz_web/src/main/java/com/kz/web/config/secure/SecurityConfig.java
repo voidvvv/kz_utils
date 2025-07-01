@@ -109,6 +109,8 @@ public class SecurityConfig {
                         .authorities("ROLE_ANONYMOUS") // 匿名用户角色
                 )
                 .formLogin(
+                        // 开启security为我们准备的默认的login接口.
+                        // 默认实现其实就是一个filter： UsernamePasswordAuthenticationFilter
                         form -> form.loginProcessingUrl("/login")
                                 .successHandler(authSuccessHandler)
                                 .failureHandler(new AuthenticationFailureHandler() {

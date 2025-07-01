@@ -1,5 +1,7 @@
 package com.kz.web;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,6 +17,17 @@ import java.security.NoSuchAlgorithmException;
 public class Util {
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
         encryptFile("C:\\myWareHouse\\dev\\mavens\\upload_set\\kz_auth_spring_starter");
+    }
+
+    public static String fetchCurrentUserId() {
+        Object principal = SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication().getPrincipal();
+        if (principal instanceof String) {
+            return (String) principal;
+        } else if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            return ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+        }
+        return String.valueOf(principal) ;
+
     }
 
     public static void encryptFile(String fileName) throws NoSuchAlgorithmException, IOException {
