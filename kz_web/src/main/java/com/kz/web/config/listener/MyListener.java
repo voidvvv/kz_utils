@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MyListener {
 
-    @KafkaListener(topics = {"test-topic"})
+    @KafkaListener(topics = "test-topic")
     public void listener(ConsumerRecord record) {
         Object key = record.key();
         Object value = record.value();

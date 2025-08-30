@@ -49,6 +49,8 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import java.io.IOException;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 public class SecurityConfig {
     @Autowired
@@ -79,6 +81,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                                 .requestMatchers("/", "/index", "/forum").permitAll() // 首页放行
                                 .requestMatchers("/blog/get", "/blog/list").permitAll()
+                                .requestMatchers("/test/**").permitAll()
 //                        .requestMatchers("/h2-console/**").permitAll()
                                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                                 .requestMatchers("/login", "/register").permitAll() // 登录页放行
@@ -108,6 +111,7 @@ public class SecurityConfig {
                         .principal("anonymousUser") // 匿名用户
                         .authorities("ROLE_ANONYMOUS") // 匿名用户角色
                 )
+//                .oauth2Login(withDefaults())
                 .formLogin(
                         // 开启security为我们准备的默认的login接口.
                         // 默认实现其实就是一个filter： UsernamePasswordAuthenticationFilter
